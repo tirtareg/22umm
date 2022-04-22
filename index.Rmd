@@ -1,0 +1,585 @@
+---
+title: "Mandiri 2021"
+author: "Subbagian Registrasi"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: scroll
+---
+
+```{css eval=FALSE, include=FALSE}
+.chart-wrapper {
+  overflow-x: scroll;
+}
+```
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+Sys.setlocale("LC_TIME", "IND")
+#library(flipTime)
+#UpdateEvery(1, "hours", options = "wakeup")
+
+library(readxl)
+library(tidyverse)
+```
+
+# UMM D3 (2021)
+
+## Row
+
+### peminat {.value-box}
+
+```{r}
+db <- read_excel("data_d3.xlsx")
+data <- db %>%
+  group_by(prodi) %>%
+  filter(`Jalur Masuk` == "UMM D3") %>%
+  summarize(minat = max(pendaftar_p12)) %>%
+  na.omit()
+
+valueBox(
+  value = paste(format(sum(data$minat), big.mark = " "), "", sep = " "),
+  caption = "Peminat di Untirta",
+  icon = "fas fa-clipboard-check",
+  color = "black"
+)
+```
+
+### lulus {.value-box}
+
+```{r}
+data <- db %>%
+  filter(`Jalur Masuk` == "UMM D3", lulus == "lulus")
+
+valueBox(
+  value = paste(format(nrow(data), big.mark = " "), "", sep = " "),
+  caption = "Lulus UMM D3",
+  icon = "fas fa-clipboard-check",
+  color = "purple"
+)
+```
+
+### laki-laki {.value-box}
+
+```{r}
+male <- data %>%
+  filter(jk == "L")
+valueBox(
+  value = paste(format(nrow(male), big.mark = " "), " (", 
+                round(nrow(male)/nrow(data)*100, 0), "%)",
+                sep = ""),
+  caption = "Laki-Laki",
+  icon = "fas fa-male",
+  color = "blue"
+)
+```
+
+### perempuan {.value-box}
+
+```{r}
+female <- filter(data, jk == "P")
+valueBox(
+  value = paste(format(nrow(female), big.mark = " "), " (", 
+                round(nrow(female)/nrow(data)*100,0), "%)",
+                sep = ""),
+  caption = "Perempuan",
+  icon = "fas fa-female",
+  color = "pink"
+)
+```
+
+### maba {.value-box}
+
+```{r}
+nim = nrow(filter(data, diterima == "diterima"))
+valueBox(
+  value = paste(format(nim, big.mark = " "), " (", 
+                round(nim/nrow(data) * 100, 0), "% )",
+                sep = " "),
+  caption = "Mahasiswa Baru",
+  icon = "fas fa-thumbs-up",
+  color = "cornflowerblue"
+)
+```
+
+## Row
+
+### **Sebaran maba di tiap Program Studi**
+
+```{r}
+library(kableExtra)
+library(janitor)
+data <- data %>%
+  group_by(fakultas, prodi) %>%
+  summarize(pendaftar = max(pendaftar_p12),
+            lulus = sum(lulus == "lulus", na.rm = T),
+            diterima = sum(diterima == "diterima", na.rm = T))
+data <- adorn_totals(data, where = "row", name = "Total")
+names(data) <- c("FAKULTAS", "PROGRAM STUDI", "PEMINAT", "LULUS SELEKSI", "DITERIMA")
+
+kable(data, row.names = F) %>%
+  kable_styling(bootstrap_options = "striped", full_width = T,
+                latex_options = "scale_down")
+```
+
+## Row
+
+### **Daftar nama Mahasiswa Baru UMM D3**
+
+```{r}
+data <- db %>%
+  filter(`Jalur Masuk` == "UMM D3", diterima == "diterima")
+
+data <- data[,c(2, 3, 17, 10)]
+names(data) <- c("No Pendaftaran", "Nama", "Jenis Kelamin", "Program Studi")
+DT::datatable(data,
+              rownames = F)#,
+              #filter = "top")
+```
+
+# JAJ (2021)
+
+## Row
+
+### peminat {.value-box}
+
+```{r}
+db <- read_excel("data_d3.xlsx")
+data <- db %>%
+  group_by(prodi) %>%
+  filter(`Jalur Masuk` == "JAJ") %>%
+  summarize(minat = max(pendaftar_p12)) %>%
+  na.omit()
+
+valueBox(
+  value = paste(format(sum(data$minat), big.mark = " "), "", sep = " "),
+  caption = "Peminat di Untirta",
+  icon = "fas fa-clipboard-check",
+  color = "black"
+)
+```
+
+### lulus {.value-box}
+
+```{r}
+data <- db %>%
+  filter(`Jalur Masuk` == "JAJ", lulus == "lulus")
+
+valueBox(
+  value = paste(format(nrow(data), big.mark = " "), "", sep = " "),
+  caption = "Lulus JAJ",
+  icon = "fas fa-clipboard-check",
+  color = "purple"
+)
+```
+
+### laki-laki {.value-box}
+
+```{r}
+male <- data %>%
+  filter(jk == "L")
+valueBox(
+  value = paste(format(nrow(male), big.mark = " "), " (", 
+                round(nrow(male)/nrow(data)*100, 0), "%)",
+                sep = ""),
+  caption = "Laki-Laki",
+  icon = "fas fa-male",
+  color = "blue"
+)
+```
+
+### perempuan {.value-box}
+
+```{r}
+female <- filter(data, jk == "P")
+valueBox(
+  value = paste(format(nrow(female), big.mark = " "), " (", 
+                round(nrow(female)/nrow(data)*100,0), "%)",
+                sep = ""),
+  caption = "Perempuan",
+  icon = "fas fa-female",
+  color = "pink"
+)
+```
+
+### maba {.value-box}
+
+```{r}
+nim = nrow(filter(data, diterima == "diterima"))
+valueBox(
+  value = paste(format(nim, big.mark = " "), " (", 
+                round(nim/nrow(data) * 100, 0), "% )",
+                sep = " "),
+  caption = "Mahasiswa Baru",
+  icon = "fas fa-thumbs-up",
+  color = "cornflowerblue"
+)
+```
+
+## Row
+
+### **Sebaran maba di tiap Program Studi**
+
+```{r}
+data <- data %>%
+  group_by(fakultas, prodi) %>%
+  summarize(pendaftar = max(pendaftar_p12),
+            lulus = sum(lulus == "lulus", na.rm = T),
+            diterima = sum(diterima == "diterima", na.rm = T))
+data <- adorn_totals(data, where = "row", name = "Total")
+names(data) <- c("FAKULTAS", "PROGRAM STUDI", "PEMINAT", "LULUS SELEKSI", "DITERIMA")
+
+kable(data, row.names = F) %>%
+  kable_styling(bootstrap_options = "striped", full_width = T,
+                latex_options = "scale_down")
+```
+
+## Row
+
+### **Daftar nama Mahasiswa Baru Jalur Alih Jenjang**
+
+```{r}
+data <- db %>%
+  filter(`Jalur Masuk` == "JAJ", diterima == "diterima")
+
+data <- data[,c(2, 3, 17, 10)]
+names(data) <- c("No Pendaftaran", "Nama", "Jenis Kelamin", "Program Studi")
+DT::datatable(data,
+              rownames = F)#,
+              #filter = "top")
+```
+
+# ADIK (2021)
+
+## Row
+
+### peminat {.value-box}
+
+```{r}
+db <- read_excel("data_adik.xlsx")
+data <- db %>%
+  group_by(prodi) %>%
+  summarize(minat = max(pendaftar_p12)) %>%
+  na.omit()
+
+valueBox(
+  value = paste(format(sum(data$minat), big.mark = " "), "", sep = " "),
+  caption = "Peminat di Untirta",
+  icon = "fas fa-clipboard-check",
+  color = "black"
+)
+```
+
+### lulus {.value-box}
+
+```{r}
+data <- db %>%
+  filter(lulus == "lulus")
+
+valueBox(
+  value = paste(format(nrow(data), big.mark = " "), "", sep = " "),
+  caption = "Lulus JAJ",
+  icon = "fas fa-clipboard-check",
+  color = "purple"
+)
+```
+
+### laki-laki {.value-box}
+
+```{r}
+male <- data %>%
+  filter(jk == "L")
+valueBox(
+  value = paste(format(nrow(male), big.mark = " "), " (", 
+                round(nrow(male)/nrow(data)*100, 0), "%)",
+                sep = ""),
+  caption = "Laki-Laki",
+  icon = "fas fa-male",
+  color = "blue"
+)
+```
+
+### perempuan {.value-box}
+
+```{r}
+female <- filter(data, jk == "P")
+valueBox(
+  value = paste(format(nrow(female), big.mark = " "), " (", 
+                round(nrow(female)/nrow(data)*100,0), "%)",
+                sep = ""),
+  caption = "Perempuan",
+  icon = "fas fa-female",
+  color = "pink"
+)
+```
+
+### maba {.value-box}
+
+```{r}
+nim = nrow(filter(data, diterima == "diterima"))
+valueBox(
+  value = paste(format(nim, big.mark = " "), " (", 
+                round(nim/nrow(data) * 100, 0), "% )",
+                sep = " "),
+  caption = "Mahasiswa Baru",
+  icon = "fas fa-thumbs-up",
+  color = "cornflowerblue"
+)
+```
+
+## Row
+
+### **Sebaran maba di tiap Program Studi**
+
+```{r}
+data <- data %>%
+  group_by(fakultas, prodi) %>%
+  summarize(pendaftar = max(pendaftar_p12),
+            lulus = sum(lulus == "lulus", na.rm = T),
+            diterima = sum(diterima == "diterima", na.rm = T))
+data <- adorn_totals(data, where = "row", name = "Total")
+names(data) <- c("FAKULTAS", "PROGRAM STUDI", "PEMINAT", "LULUS SELEKSI", "DITERIMA")
+
+kable(data, row.names = F) %>%
+  kable_styling(bootstrap_options = "striped", full_width = T,
+                latex_options = "scale_down")
+```
+
+## Row
+
+### **Daftar nama Mahasiswa Baru Jalur Alih Jenjang**
+
+```{r}
+data <- db %>%
+  filter(diterima == "diterima")
+
+data <- data[,c(2, 3, 17, 10)]
+names(data) <- c("No Pendaftaran", "Nama", "Jenis Kelamin", "Program Studi")
+DT::datatable(data,
+              rownames = F)#,
+              #filter = "top")
+```
+
+# S2 (2022)
+
+## Row
+
+### peminat {.value-box}
+
+```{r}
+db <- read_excel("data_pasca.xlsx")
+data <- db %>%
+  filter(jenjang == "S2") %>%
+  group_by(prodi) %>%
+  summarize(minat = max(pendaftar_p12)) %>%
+  na.omit()
+
+valueBox(
+  value = paste(format(sum(data$minat), big.mark = " "), "", sep = " "),
+  caption = "Peminat di Untirta",
+  icon = "fas fa-clipboard-check",
+  color = "black"
+)
+```
+
+### lulus {.value-box}
+
+```{r}
+data <- db %>%
+  filter(jenjang == "S2", lulus == "lulus")
+
+valueBox(
+  value = paste(format(nrow(data), big.mark = " "), "", sep = " "),
+  caption = "Lulus Seleksi S2",
+  icon = "fas fa-clipboard-check",
+  color = "purple"
+)
+```
+
+### laki-laki {.value-box}
+
+```{r}
+male <- data %>%
+  filter(jk == "L")
+valueBox(
+  value = paste(format(nrow(male), big.mark = " "), " (", 
+                round(nrow(male)/nrow(data)*100, 0), "%)",
+                sep = ""),
+  caption = "Laki-Laki",
+  icon = "fas fa-male",
+  color = "blue"
+)
+```
+
+### perempuan {.value-box}
+
+```{r}
+female <- filter(data, jk == "P")
+valueBox(
+  value = paste(format(nrow(female), big.mark = " "), " (", 
+                round(nrow(female)/nrow(data)*100,0), "%)",
+                sep = ""),
+  caption = "Perempuan",
+  icon = "fas fa-female",
+  color = "pink"
+)
+```
+
+### maba {.value-box}
+
+```{r}
+nim = nrow(filter(data, diterima == "diterima"))
+valueBox(
+  value = paste(format(nim, big.mark = " "), " (", 
+                round(nim/nrow(data) * 100, 0), "% )",
+                sep = " "),
+  caption = "Mahasiswa Baru",
+  icon = "fas fa-thumbs-up",
+  color = "cornflowerblue"
+)
+```
+
+## Row
+
+### **Sebaran maba di tiap Program Studi**
+
+```{r}
+data <- data %>%
+  group_by(fakultas, prodi, jenjang) %>%
+  summarize(pendaftar = max(pendaftar_p12),
+            lulus = sum(lulus == "lulus", na.rm = T),
+            diterima = sum(diterima == "diterima", na.rm = T))
+data <- adorn_totals(data, where = "row", name = "Total")
+names(data) <- c("FAKULTAS", "PROGRAM STUDI", "JENJANG","PEMINAT", "LULUS SELEKSI", "DITERIMA")
+
+kable(data, row.names = F) %>%
+  kable_styling(bootstrap_options = "striped", full_width = T,
+                latex_options = "scale_down")
+```
+
+## Row
+
+### **Daftar nama Mahasiswa Baru S2**
+
+```{r}
+data <- db %>%
+  filter(jenjang == "S2", diterima == "diterima")
+
+data <- data[,c(2, 3, 17, 10)]
+names(data) <- c("No Pendaftaran", "Nama", "Jenis Kelamin", "Program Studi")
+DT::datatable(data,
+              rownames = F)#,
+              #filter = "top")
+```
+
+# S3 (2022)
+
+## Row
+
+### peminat {.value-box}
+
+```{r}
+db <- read_excel("data_pasca.xlsx")
+data <- db %>%
+  filter(jenjang == "S3") %>%
+  group_by(prodi) %>%
+  summarize(minat = max(pendaftar_p12)) %>%
+  na.omit()
+
+valueBox(
+  value = paste(format(sum(data$minat), big.mark = " "), "", sep = " "),
+  caption = "Peminat di Untirta",
+  icon = "fas fa-clipboard-check",
+  color = "black"
+)
+```
+
+### lulus {.value-box}
+
+```{r}
+data <- db %>%
+  filter(jenjang == "S3", lulus == "lulus")
+
+valueBox(
+  value = paste(format(nrow(data), big.mark = " "), "", sep = " "),
+  caption = "Lulus Seleksi S3",
+  icon = "fas fa-clipboard-check",
+  color = "purple"
+)
+```
+
+### laki-laki {.value-box}
+
+```{r}
+male <- data %>%
+  filter(jk == "L")
+valueBox(
+  value = paste(format(nrow(male), big.mark = " "), " (", 
+                round(nrow(male)/nrow(data)*100, 0), "%)",
+                sep = ""),
+  caption = "Laki-Laki",
+  icon = "fas fa-male",
+  color = "blue"
+)
+```
+
+### perempuan {.value-box}
+
+```{r}
+female <- filter(data, jk == "P")
+valueBox(
+  value = paste(format(nrow(female), big.mark = " "), " (", 
+                round(nrow(female)/nrow(data)*100,0), "%)",
+                sep = ""),
+  caption = "Perempuan",
+  icon = "fas fa-female",
+  color = "pink"
+)
+```
+
+### maba {.value-box}
+
+```{r}
+nim = nrow(filter(data, diterima == "diterima"))
+valueBox(
+  value = paste(format(nim, big.mark = " "), " (", 
+                round(nim/nrow(data) * 100, 0), "% )",
+                sep = " "),
+  caption = "Mahasiswa Baru",
+  icon = "fas fa-thumbs-up",
+  color = "cornflowerblue"
+)
+```
+
+## Row
+
+### **Sebaran maba di tiap Program Studi**
+
+```{r}
+data <- data %>%
+  group_by(fakultas, prodi, jenjang) %>%
+  summarize(pendaftar = max(pendaftar_p12),
+            lulus = sum(lulus == "lulus", na.rm = T),
+            diterima = sum(diterima == "diterima", na.rm = T))
+data <- adorn_totals(data, where = "row", name = "Total")
+names(data) <- c("FAKULTAS", "PROGRAM STUDI", "JENJANG","PEMINAT", "LULUS SELEKSI", "DITERIMA")
+
+kable(data, row.names = F) %>%
+  kable_styling(bootstrap_options = "striped", full_width = T,
+                latex_options = "scale_down")
+```
+
+## Row
+
+### **Daftar nama Mahasiswa Baru S3**
+
+```{r}
+data <- db %>%
+  filter(jenjang == "S3", diterima == "diterima")
+
+data <- data[,c(2, 3, 17, 10)]
+names(data) <- c("No Pendaftaran", "Nama", "Jenis Kelamin", "Program Studi")
+DT::datatable(data,
+              rownames = F)#,
+              #filter = "top")
+```
